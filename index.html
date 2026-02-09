@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistem Data Guru</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .sidebar { min-height: 100vh; background: #212529; color: white; display: none; }
+        .page-content { display: none; padding: 30px; }
+        #login-page { max-width: 400px; margin-top: 100px; }
+    </style>
+</head>
+<body>
+
+<div id="login-page" class="container card shadow p-4">
+    <h3 class="text-center">Login Aplikasi Guru</h3>
+    <input type="email" id="email" class="form-control mb-2" placeholder="Email">
+    <input type="password" id="pass" class="form-control mb-3" placeholder="Password">
+    <button class="btn btn-primary w-100" onclick="login()">Masuk</button>
+</div>
+
+<div id="main-app" class="container-fluid">
+    <div class="row">
+        <nav id="sidebar" class="col-md-2 sidebar p-3 text-white">
+            <h5>Navigasi</h5><hr>
+            <div class="nav flex-column">
+                <a class="nav-link text-white" href="#" onclick="showPage('modulData')">1. Data Diri</a>
+                <a class="nav-link text-white" href="#" onclick="showPage('modulBerkas')">2. Upload Berkas</a>
+                <a class="nav-link text-white" href="#" onclick="showPage('modulLink')">3. Link Kegiatan</a>
+                <a class="nav-link text-danger mt-5" href="#" onclick="location.reload()">Logout</a>
+            </div>
+        </nav>
+
+        <main class="col-md-10 page-content">
+            <div id="modulData" class="page">
+                <h3>Input/Update Data Diri</h3>
+                <div class="card p-4 shadow-sm">
+                    <div class="row g-3">
+                        <div class="col-md-6"><label>Nama</label><input type="text" id="nama" class="form-control"></div>
+                        <div class="col-md-6"><label>NIP</label><input type="text" id="nip" class="form-control"></div>
+                        <div class="col-md-6"><label>Golongan</label><input type="text" id="pangkat" class="form-control"></div>
+                        <div class="col-md-6"><label>Mata Pelajaran</label><input type="text" id="mapel" class="form-control"></div>
+                        <div class="col-md-6"><label>Tempat Lahir</label><input type="text" id="tmpt" class="form-control"></div>
+                        <div class="col-md-6"><label>Tgl Lahir</label><input type="date" id="tgl" class="form-control"></div>
+                    </div>
+                    <button class="btn btn-success mt-4" onclick="saveData()">Simpan Perubahan</button>
+                </div>
+            </div>
+
+            <div id="modulBerkas" class="page">
+                <h3>Upload Berkas Resmi</h3>
+                <div class="card p-4 shadow-sm">
+                    <div class="mb-3">
+                        <label>Pilih Jenis Berkas</label>
+                        <select id="jenisBerkas" class="form-select">
+                            <option value="KK">Kartu Keluarga (KK)</option>
+                            <option value="SK">SK Terakhir</option>
+                            <option value="KGB">KGB Terakhir</option>
+                            <option value="Foto">Foto Resmi</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <input type="file" id="fileInput" class="form-control">
+                    </div>
+                    <button class="btn btn-primary" onclick="uploadFile()">Unggah Berkas</button>
+                </div>
+            </div>
+
+            <div id="modulLink" class="page">
+                <h3>Link Kegiatan (Google Drive)</h3>
+                <div class="card p-4 shadow-sm">
+                    <input type="text" id="judulK" class="form-control mb-2" placeholder="Judul Kegiatan">
+                    <input type="url" id="urlK" class="form-control mb-3" placeholder="URL Google Drive">
+                    <button class="btn btn-info" onclick="saveLink()">Kirim Link</button>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    const SCRIPT_URL = "URL_WEB_APP_ANDA"; 
+    let session = {};
+
+    function showPage(id) {
+        document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
+        document.getElementById(id).style.display = 'block';
+    }
+
+    async function login() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('pass').value;
+        const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'login', email, password }) }).then(r => r.json());
+        if(res.status === "success") {
+            session = res;
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('sidebar').style.display = 'block';
+            document.querySelector('.page-content').style.display = 'block';
+            showPage('modulData');
+        } else alert("Email/Password Salah");
+    }
+
+    async function saveData() {
+        const data = {
+            email: session.email,
+            nama: document.getElementById('nama').value,
+            nip: document.getElementById('nip').value,
+            pangkat: document.getElementById('pangkat').value,
+            mapel: document.getElementById('mapel').value,
+            tmptLahir: document.getElementById('tmpt').value,
+            tglLahir: document.getElementById('tgl').value
+        };
+        const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'simpanData', data }) }).then(r => r.json());
+        alert(res.message);
+    }
+
+    function uploadFile() {
+        const file = document.getElementById('fileInput').files[0];
+        const jenis = document.getElementById('jenisBerkas').value;
+        if(!file) return alert("Pilih file dulu");
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = async () => {
+            const res = await fetch(SCRIPT_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({ action: 'upload', base64: reader.result, fileName: file.name, email: session.email, jenis: jenis }) 
+            }).then(r => r.json());
+            alert(res.message);
+        };
+    }
+
+    async function saveLink() {
+        const data = { email: session.email, judul: document.getElementById('judulK').value, url: document.getElementById('urlK').value };
+        const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'simpanLink', data }) }).then(r => r.json());
+        alert(res.message);
+    }
+</script>
+</body>
+</html>
