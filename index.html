@@ -3,386 +3,262 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Informasi Data Guru</title>
-    
+    <title>Portal Guru - SMPN 13 Makassar</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f4f7fa; color: #333; }
-        
-        /* Login Styles */
-        #login-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .login-card { width: 100%; max-width: 400px; border: none; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-
-        /* Sidebar Styles */
-        .sidebar { min-height: 100vh; background: #1e293b; color: white; transition: all 0.3s; }
-        .nav-link { color: #cbd5e1; padding: 12px 20px; border-radius: 8px; margin: 4px 10px; transition: 0.2s; display: flex; align-items: center; }
-        .nav-link i { font-size: 1.2rem; margin-right: 12px; }
-        .nav-link:hover, .nav-link.active { background: #334155; color: white; }
-        .nav-link.text-danger:hover { background: #450a0a; }
-
-        /* Content Styles */
-        .main-content { padding: 30px; }
+        :root { --dark: #1e293b; --primary: #0d6efd; --bg: #f1f5f9; }
+        html, body { height: 100%; margin: 0; }
+        body { display: flex; flex-direction: column; background: var(--bg); font-family: 'Inter', sans-serif; }
+        .content-wrapper { flex: 1 0 auto; }
+        #login-page { min-height: 85vh; display: flex; align-items: center; justify-content: center; }
+        .sidebar { background: var(--dark); color: white; min-height: 100vh; transition: 0.3s; }
+        .nav-link { color: #94a3b8; cursor: pointer; border-radius: 8px; margin-bottom: 5px; transition: 0.2s; }
+        .nav-link.active, .nav-link:hover { background: #334155; color: white; }
         .card { border: none; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        .page-header { margin-bottom: 25px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; }
-        
-        #main-app { display: none; }
-        .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 9999; align-items: center; justify-content: center; flex-direction: column; }
+        .stats-card { border-left: 5px solid var(--primary); background: white; padding: 20px; border-radius: 12px; }
+        footer { flex-shrink: 0; background: white; border-top: 1px solid #e2e8f0; padding: 20px 0; text-align: center; font-size: 0.9rem; }
+        #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 9999; display: none; align-items: center; justify-content: center; flex-direction: column; }
+        @media (max-width: 768px) { .sidebar { position: fixed; left: -100%; width: 250px; z-index: 1001; } .sidebar.show { left: 0; } }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
-    <div class="loading-overlay" id="loader">
-        <div class="spinner-border text-primary" role="status"></div>
-        <span class="mt-2 fw-bold">Memproses...</span>
-    </div>
+<div id="loader"><div class="spinner-border text-primary"></div><p class="mt-2 fw-bold">Memproses...</p></div>
 
-    <div id="login-page">
-        <div class="card login-card p-4">
+<div class="content-wrapper">
+    <div id="login-page" class="container">
+        <div class="card p-4 mx-auto shadow-lg border-0" style="max-width: 400px; width: 100%;">
             <div class="text-center mb-4">
-                <i class="bi bi-person-badge text-primary" style="font-size: 3rem;"></i>
-                <h3 class="fw-bold mt-2">Portal Guru</h3>
-                <p class="text-muted">Silakan masuk ke akun Anda</p>
+                <i class="bi bi-person-circle text-primary" style="font-size: 3.5rem;"></i>
+                <h4 class="fw-bold mt-2">LOGIN PORTAL</h4>
+                <p class="text-muted small">SMPN 13 MAKASSAR</p>
             </div>
-            <div class="mb-3">
-                <label class="form-label">Email</label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                    <input type="email" id="email" class="form-control" placeholder="nama@sekolah.id">
-                </div>
-            </div>
-            <div class="mb-4">
-                <label class="form-label">Password</label>
-                <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                    <input type="password" id="pass" class="form-control" placeholder="••••••••">
-                </div>
-            </div>
-            <button class="btn btn-primary w-100 py-2 fw-bold" onclick="login()">
-                Login <i class="bi bi-box-arrow-in-right ms-1"></i>
-            </button>
+            <input type="email" id="email" class="form-control mb-3" placeholder="Email">
+            <input type="password" id="pass" class="form-control mb-4" placeholder="Password">
+            <button class="btn btn-primary w-100 py-2 fw-bold shadow" onclick="login()">MASUK SISTEM</button>
         </div>
     </div>
 
-    <div id="main-app" class="container-fluid">
+    <div id="main-app" class="container-fluid d-none">
         <div class="row">
-            <nav class="col-md-2 d-none d-md-block sidebar p-0 shadow">
-                <div class="p-4 text-center">
-                    <h5 class="fw-bold mb-0">E-DATA GURU</h5>
-                    <small class="text-info" id="user-role-text"></small>
-                </div>
-                <hr class="mx-3 opacity-25">
-                <div class="nav flex-column mt-2">
-                    <a class="nav-link active" onclick="showPage('modulData', this)">
-                        <i class="bi bi-person-vcard"></i> Data Diri
-                    </a>
-                    <a class="nav-link" onclick="showPage('modulBerkas', this)">
-                        <i class="bi bi-cloud-upload"></i> Upload Berkas
-                    </a>
-                    <a class="nav-link" onclick="showPage('modulLink', this)">
-                        <i class="bi bi-link-45deg"></i> Link Kegiatan
-                    </a>
-                    
-                    <div id="admin-section" class="d-none">
-                        <hr class="mx-3 opacity-25">
-                        <small class="px-4 text-uppercase text-muted" style="font-size: 0.7rem;">Admin Panel</small>
-                        <a class="nav-link" onclick="showPage('modulAdmin', this); fetchAdminData('guru')">
-                            <i class="bi bi-speedometer2"></i> Dashboard Admin
-                        </a>
+            <nav class="col-md-2 sidebar p-3" id="sidebarMenu">
+                <div class="text-center py-4 border-bottom border-secondary mb-3"><h5 class="fw-bold text-info">E-DATA GURU</h5></div>
+                <div class="nav flex-column">
+                    <a class="nav-link active" onclick="showPage('modulData', this)"><i class="bi bi-person-badge me-2"></i> Identitas Diri</a>
+                    <a class="nav-link" onclick="showPage('modulBerkas', this)"><i class="bi bi-cloud-arrow-up me-2"></i> Unggah Berkas</a>
+                    <a class="nav-link" onclick="showPage('modulLink', this)"><i class="bi bi-link-45deg me-2"></i> Link Drive</a>
+                    <div id="admin-only" class="d-none mt-4 pt-3 border-top border-secondary">
+                        <small class="text-muted px-2 d-block mb-2">ADMIN PANEL</small>
+                        <a class="nav-link text-warning" onclick="showPage('modulAdmin', this); fetchAdminData('guru')"><i class="bi bi-speedometer2 me-2"></i> Dashboard Admin</a>
                     </div>
-
-                    <a class="nav-link text-danger mt-5" onclick="location.reload()">
-                        <i class="bi bi-power"></i> Logout
-                    </a>
+                    <a class="nav-link text-danger mt-5" onclick="location.reload()"><i class="bi bi-power me-2"></i> Logout</a>
                 </div>
             </nav>
 
-            <main class="col-md-10 main-content ms-sm-auto">
-                
-                <div id="modulData" class="page-section">
-                    <div class="page-header">
-                        <h2 class="fw-bold"><i class="bi bi-person-vcard me-2 text-primary"></i>Data Diri</h2>
-                    </div>
+            <main class="col-md-10 p-4">
+                <div id="modulData" class="page">
+                    <h3 class="fw-bold mb-4 text-primary">Profil Guru</h3>
                     <div class="card p-4">
                         <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-medium">Nama Lengkap</label>
-                                <input type="text" id="nama" class="form-control" placeholder="Nama dengan gelar">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-medium">NIP</label>
-                                <input type="text" id="nip" class="form-control" placeholder="18 digit NIP">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-medium">Pangkat / Golongan</label>
-                                <select id="pangkat" class="form-select">
-                                    <option value="III/a">Penata Muda (III/a)</option>
-                                    <option value="III/b">Penata Muda Tk.I (III/b)</option>
-                                    <option value="IV/a">Pembina (IV/a)</option>
+                            <div class="col-md-6"><label class="small fw-bold">Nama Lengkap</label><input type="text" id="nama" class="form-control" placeholder="Contoh: Dr. Abdullah, M.Pd.,S.Pd"></div>
+                            <div class="col-md-6"><label class="small fw-bold">NIP</label><input type="text" id="nip" class="form-control" placeholder="16 Angka"></div>
+                            <div class="col-md-4"><label class="small fw-bold">Pangkat/Golongan</label>
+                                <select id="pangkat" class="form-select">                                    
+									<option value="III/a">III/a</option>
+									<option value="III/b">III/b</option>
+									<option value="III/c">III/c</option>
+									<option value="III/d">III/d</option>
+                                    <option value="IV/a">IV/a</option>
+									<option value="IV/b">IV/b</option>
+									<option value="IV/c">IV/c</option>
+									<option value="IV/d">IV/d</option>
+									<option value="IX">IX</option>
+									<option value="II">II</option>
                                 </select>
                             </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-medium">Mata Pelajaran</label>
-                                <input type="text" id="mapel" class="form-control" placeholder="Contoh: Matematika">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-medium">Tempat Lahir</label>
-                                <input type="text" id="tmpt" class="form-control">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-medium">Tanggal Lahir</label>
-                                <input type="date" id="tgl" class="form-control">
-                            </div>
-                        </div>
-                        <div class="mt-4">
-                            <button class="btn btn-primary px-4 py-2" onclick="saveData()">
-                                <i class="bi bi-check2-circle me-1"></i> Simpan Data
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="modulBerkas" class="page-section d-none">
-                    <div class="page-header">
-                        <h2 class="fw-bold"><i class="bi bi-file-earmark-arrow-up me-2 text-primary"></i>Arsip Berkas</h2>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-5">
-                            <div class="card p-4">
-                                <label class="form-label fw-bold">Pilih Jenis Dokumen</label>
-                                <select id="jenisBerkas" class="form-select mb-3">
-                                    <option value="KK">Kartu Keluarga (KK)</option>
-                                    <option value="SK">SK Terakhir</option>
-                                    <option value="KGB">KGB Terakhir</option>
-                                    <option value="Foto">Foto Resmi (Latar Merah/Biru)</option>
+                            <div class="col-md-4"><label class="small fw-bold">Tempat Lahir</label><input type="text" id="tmptLahir" class="form-control" placeholder="Makassar"></div>
+                            <div class="col-md-4"><label class="small fw-bold">Tgl Lahir</label><input type="date" id="tglLahir" class="form-control"></div>
+                            <div class="col-md-12"><label class="small fw-bold">Mata Pelajaran/Job Desk</label>
+                                <select id="mapel" class="form-select">
+                                    <option value="PAI">Pend.Agama Islam</option>
+									<option value="PAK">Pend.Agama Kristen</option>
+									<option value="Bahasa Indonesia">Bahasa Indonesia</option>
+									<option value="Bahasa Inggris">Bahasa Inggris</option>
+                                    <option value="Matematika">Matematika</option>
+									<option value="IPA">IPA</option>
+									<option value="IPS">IPS</option>
+                                    <option value="PJOK">PJOK</option>
+									<option value="SBK">Seni Budaya</option>
+									<option value="Prakarya">Prakarya</option>
+									<option value="Informatika">Informatika</option>
+									<option value="Mulok">Mulok</option>
+									<option value="BK">Konseling</option>
+									<option value="Lainnya">TU</option>
                                 </select>
-                                <input type="file" id="fileInput" class="form-control mb-3">
-                                <button class="btn btn-primary w-100" onclick="uploadFile()">
-                                    <i class="bi bi-cloud-arrow-up me-1"></i> Mulai Unggah
-                                </button>
                             </div>
                         </div>
-                        <div class="col-md-7">
-                            <div class="alert alert-info border-0 shadow-sm">
-                                <h6 class="fw-bold"><i class="bi bi-info-circle me-2"></i>Panduan Upload:</h6>
-                                <ul class="small mb-0">
-                                    <li>Pastikan file berformat PDF atau Gambar (JPG/PNG).</li>
-                                    <li>Ukuran maksimal file adalah 10MB.</li>
-                                    <li>File akan otomatis tersimpan di Folder Google Drive Sekolah.</li>
-                                </ul>
-                            </div>
-                        </div>
+                        <button class="btn btn-primary mt-4 fw-bold shadow-sm" onclick="saveData()">SIMPAN DATA</button>
                     </div>
                 </div>
 
-                <div id="modulLink" class="page-section d-none">
-                    <div class="page-header">
-                        <h2 class="fw-bold"><i class="bi bi-google-drive me-2 text-primary"></i>Link Google Drive</h2>
-                    </div>
-                    <div class="card p-4 shadow-sm">
-                        <div class="mb-3">
-                            <label class="form-label">Nama Kegiatan</label>
-                            <input type="text" id="judulK" class="form-control" placeholder="Contoh: Webinar Kurikulum Merdeka">
+                <div id="modulAdmin" class="page d-none">
+                    <h3 class="fw-bold mb-4 text-danger">Monitoring Dashboard</h3>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6 col-lg-4">
+                            <div class="stats-card shadow-sm"><small class="text-muted fw-bold">TOTAL GURU</small><h3 id="stat-total" class="fw-bold mb-0">0</h3></div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">URL Folder/File Drive</label>
-                            <input type="url" id="urlK" class="form-control" placeholder="https://drive.google.com/...">
+                        <div class="col-md-6 col-lg-4">
+                            <div class="stats-card shadow-sm" style="border-left-color: #198754;"><small class="text-muted fw-bold">DATA BERKAS</small><h3 id="stat-berkas" class="fw-bold mb-0">0</h3></div>
                         </div>
-                        <button class="btn btn-info text-white" onclick="saveLink()">
-                            <i class="bi bi-send-plus me-1"></i> Kirim Tautan
-                        </button>
                     </div>
-                </div>
 
-                <div id="modulAdmin" class="page-section d-none">
-                    <div class="page-header d-flex justify-content-between align-items-center">
-                        <h2 class="fw-bold"><i class="bi bi-shield-lock me-2 text-danger"></i>Dashboard Admin</h2>
-                        <div class="btn-group shadow-sm">
-                            <button class="btn btn-dark btn-sm" onclick="fetchAdminData('guru')">Data Diri</button>
-                            <button class="btn btn-dark btn-sm" onclick="fetchAdminData('berkas')">Berkas</button>
-                            <button class="btn btn-dark btn-sm" onclick="fetchAdminData('kegiatan')">Kegiatan</button>
+                    <div class="card p-3 mb-3 shadow-sm">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-md-4">
+                                <div class="btn-group w-100">
+                                    <button class="btn btn-dark btn-sm" onclick="fetchAdminData('guru')">Tabel Guru</button>
+                                    <button class="btn btn-dark btn-sm" onclick="fetchAdminData('berkas')">Tabel Berkas</button>
+                                    <button class="btn btn-dark btn-sm" onclick="fetchAdminData('link')">Link Drive</button>
+                                </div>
+                            </div>
+                            <div class="col-md-5"><input type="text" id="search" class="form-control form-control-sm" placeholder="Cari data..." onkeyup="filterTable()"></div>
+                            <div class="col-md-3"><button class="btn btn-success btn-sm w-100 fw-bold" onclick="exportExcel()"><i class="bi bi-file-excel"></i> Export Excel</button></div>
                         </div>
                     </div>
-                    <div class="card">
+
+                    <div class="card overflow-hidden shadow-sm">
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0">
-                                <thead class="table-light">
-                                    <tr id="tableHead"></tr>
-                                </thead>
-                                <tbody id="tableBody"></tbody>
+                            <table class="table table-hover align-middle mb-0" id="adminTable">
+                                <thead class="table-primary small text-uppercase"><tr id="tHead"></tr></thead>
+                                <tbody id="tBody" class="small"></tbody>
                             </table>
                         </div>
                     </div>
                 </div>
 
+                <div id="modulBerkas" class="page d-none">
+                    <h3 class="fw-bold mb-4 text-primary">Upload Berkas</h3>
+                    <div class="card p-4 shadow-sm border-0">
+                        <select id="jenis" class="form-select mb-3"><option value="KK">Kartu Keluarga (KK)</option><option value="SK">SK Terakhir</option><option value="KGB">KGB Terakhir</option><option value="Foto">Foto Resmi</option></select>
+                        <input type="file" id="fileInput" class="form-control mb-3"><button class="btn btn-primary fw-bold w-100" onclick="uploadFile()">UNGGAH FILE</button>
+                    </div>
+                </div>
+                <div id="modulLink" class="page d-none">
+                    <h3 class="fw-bold mb-4 text-primary">Kirim Link Google Drive</h3>
+                    <div class="card p-4 shadow-sm border-0">
+                        <input type="text" id="jLink" class="form-control mb-3" placeholder="Judul Berkas"><input type="url" id="uLink" class="form-control mb-3" placeholder="https://drive.google.com/..."><button class="btn btn-info text-white fw-bold w-100" onclick="saveLink()">KIRIM LINK</button>
+                    </div>
+                </div>
             </main>
         </div>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<footer>&copy; <span id="year"></span> | <a href="https://smpn13makassar.my.id" target="_blank" style="text-decoration:none; font-weight:bold;">SMPN 13 MAKASSAR</a></footer>
 
-    <script>
-        // --- KONFIGURASI ---
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby-f8PXl2R47mjousqdRgul3yKw2kkuCPeW3tByKHJfzN0VcxBZrTN4nY7gdT000GHERA/exec"; // GANTI DENGAN URL GOOGLE APPS SCRIPT ANDA
-        let session = {};
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzY62nz6JVosElWP1O0OFWdybMssEco9spugXugn4FX_lFrJCQwdU9zeNAgFnpa9MU--Q/exec"; // GANTI DENGAN URL DEPLOY ANDA
+    let session = {};
+    document.getElementById('year').innerText = new Date().getFullYear();
 
-        function toggleLoader(show) {
-            document.getElementById('loader').style.display = show ? 'flex' : 'none';
+    function toggleLoader(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }
+    function showPage(id, el) {
+        document.querySelectorAll('.page').forEach(p => p.classList.add('d-none'));
+        document.getElementById(id).classList.remove('d-none');
+        document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    async function login() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('pass').value;
+        toggleLoader(true);
+        const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'login', email, password }) }).then(r => r.json());
+        if (res.status === "success") {
+            session = res;
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('main-app').classList.remove('d-none');
+            if (res.role === 'admin') document.getElementById('admin-only').classList.remove('d-none');
+            showPage('modulData', document.querySelector('.nav-link'));
+        } else alert("Email/Password Salah!");
+        toggleLoader(false);
+    }
+
+    async function saveData() {
+        const data = { email: session.email, nama: document.getElementById('nama').value, nip: document.getElementById('nip').value, pangkat: document.getElementById('pangkat').value, tmptLahir: document.getElementById('tmptLahir').value, tglLahir: document.getElementById('tglLahir').value, mapel: document.getElementById('mapel').value };
+        toggleLoader(true);
+        const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'simpanData', data }) }).then(r => r.json());
+        alert(res.message); toggleLoader(false);
+    }
+
+    function uploadFile() {
+        const file = document.getElementById('fileInput').files[0];
+        const jenis = document.getElementById('jenis').value;
+        if (!file) return alert("Pilih file!");
+        toggleLoader(true);
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = async () => {
+            const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'upload', base64: reader.result, fileName: file.name, email: session.email, jenis }) }).then(r => r.json());
+            alert(res.message); toggleLoader(false);
+        };
+    }
+
+    async function saveLink() {
+        const data = { email: session.email, judul: document.getElementById('jLink').value, link: document.getElementById('uLink').value };
+        toggleLoader(true);
+        const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'simpanLink', data }) }).then(r => r.json());
+        alert(res.message); toggleLoader(false);
+    }
+
+    async function fetchAdminData(type) {
+        toggleLoader(true);
+        const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getAllData' }) }).then(r => r.json());
+        document.getElementById('stat-total').innerText = res.guru.length - 1;
+        document.getElementById('stat-berkas').innerText = res.berkas.length - 1;
+        const th = document.getElementById('tHead'); const tb = document.getElementById('tBody');
+        th.innerHTML = ""; tb.innerHTML = "";
+        
+        if (type === 'guru') {
+            th.innerHTML = "<th>Nama</th><th>NIP</th><th>Pangkat</th><th>TTL</th><th>Mapel</th><th>Aksi</th>";
+            res.guru.slice(1).forEach(r => {
+                tb.innerHTML += `<tr><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}, ${r[5]}</td><td>${r[6]}</td><td><button class="btn btn-outline-danger btn-sm border-0" onclick="hapusData('${r[0]}', 'guru')"><i class="bi bi-trash"></i></button></td></tr>`;
+            });
+        } else if (type === 'berkas') {
+            th.innerHTML = "<th>Email</th><th>KK</th><th>SK</th><th>KGB</th><th>Foto</th><th>Aksi</th>";
+            res.berkas.slice(1).forEach(r => {
+                const view = (l) => l ? `<a href="${l}" target="_blank" class="btn btn-sm btn-link"><i class="bi bi-eye"></i></a>` : '-';
+                tb.innerHTML += `<tr><td>${r[0]}</td><td>${view(r[1])}</td><td>${view(r[2])}</td><td>${view(r[3])}</td><td>${view(r[4])}</td><td><button class="btn btn-outline-danger btn-sm border-0" onclick="hapusData('${r[0]}', 'berkas')"><i class="bi bi-trash"></i></button></td></tr>`;
+            });
+        } else if (type === 'link') {
+            th.innerHTML = "<th>Email</th><th>Judul</th><th>Link</th><th>Aksi</th>";
+            res.kegiatan.slice(1).forEach(r => {
+                tb.innerHTML += `<tr><td>${r[0]}</td><td>${r[1]}</td><td><a href="${r[2]}" target="_blank" class="btn btn-sm btn-info text-white fw-bold">Buka</a></td><td><button class="btn btn-outline-danger btn-sm border-0" onclick="hapusData('${r[0]}', 'link')"><i class="bi bi-trash"></i></button></td></tr>`;
+            });
         }
+        toggleLoader(false);
+    }
 
-        // --- SISTEM LOGIN ---
-        async function login() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('pass').value;
-            
-            if(!email || !password) return alert("Email dan Password wajib diisi!");
-            
-            toggleLoader(true);
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'login', email, password })
-                });
-                const res = await response.json();
+    async function hapusData(email, context) {
+        if(!confirm(`Hapus data ${context} untuk ${email}?`)) return;
+        toggleLoader(true);
+        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'hapusData', email, context }) });
+        fetchAdminData(context === 'link' ? 'link' : (context === 'berkas' ? 'berkas' : 'guru'));
+        toggleLoader(false);
+    }
 
-                if(res.status === "success") {
-                    session = res;
-                    document.getElementById('login-page').style.display = 'none';
-                    document.getElementById('main-app').style.display = 'block';
-                    document.getElementById('user-role-text').innerText = res.role.toUpperCase();
-                    
-                    if(res.role === 'admin') {
-                        document.getElementById('admin-section').classList.remove('d-none');
-                    }
-                    showPage('modulData', document.querySelector('.nav-link'));
-                } else {
-                    alert(res.message);
-                }
-            } catch (e) {
-                alert("Kesalahan Server. Pastikan SCRIPT_URL benar.");
-            } finally {
-                toggleLoader(false);
-            }
-        }
+    function filterTable() {
+        let input = document.getElementById("search").value.toLowerCase();
+        let rows = document.getElementById("tBody").getElementsByTagName("tr");
+        for (let row of rows) { row.style.display = row.innerText.toLowerCase().includes(input) ? "" : "none"; }
+    }
 
-        // --- NAVIGASI PAGE ---
-        function showPage(id, element) {
-            document.querySelectorAll('.page-section').forEach(p => p.classList.add('d-none'));
-            document.getElementById(id).classList.remove('d-none');
-            
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            element.classList.add('active');
-        }
-
-        // --- CRUD: SIMPAN DATA DIRI ---
-        async function saveData() {
-            const data = {
-                email: session.email,
-                nama: document.getElementById('nama').value,
-                nip: document.getElementById('nip').value,
-                pangkat: document.getElementById('pangkat').value,
-                mapel: document.getElementById('mapel').value,
-                tmptLahir: document.getElementById('tmpt').value,
-                tglLahir: document.getElementById('tgl').value
-            };
-            
-            toggleLoader(true);
-            const res = await fetch(SCRIPT_URL, { 
-                method: 'POST', 
-                body: JSON.stringify({ action: 'simpanData', data }) 
-            }).then(r => r.json());
-            toggleLoader(false);
-            alert(res.message);
-        }
-
-        // --- CRUD: UPLOAD BERKAS ---
-        function uploadFile() {
-            const fileInput = document.getElementById('fileInput');
-            const file = fileInput.files[0];
-            const jenis = document.getElementById('jenisBerkas').value;
-            
-            if(!file) return alert("Pilih file terlebih dahulu!");
-            
-            toggleLoader(true);
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = async () => {
-                const res = await fetch(SCRIPT_URL, { 
-                    method: 'POST', 
-                    body: JSON.stringify({ 
-                        action: 'upload', 
-                        base64: reader.result, 
-                        fileName: file.name, 
-                        email: session.email, 
-                        jenis: jenis 
-                    }) 
-                }).then(r => r.json());
-                toggleLoader(false);
-                alert(res.message);
-                fileInput.value = "";
-            };
-        }
-
-        // --- CRUD: LINK KEGIATAN ---
-        async function saveLink() {
-            const data = { 
-                email: session.email, 
-                judul: document.getElementById('judulK').value, 
-                url: document.getElementById('urlK').value 
-            };
-            if(!data.judul || !data.url) return alert("Lengkapi judul dan link!");
-            
-            toggleLoader(true);
-            const res = await fetch(SCRIPT_URL, { 
-                method: 'POST', 
-                body: JSON.stringify({ action: 'simpanLink', data }) 
-            }).then(r => r.json());
-            toggleLoader(false);
-            alert(res.message);
-        }
-
-        // --- ADMIN: FETCH & DASHBOARD ---
-        async function fetchAdminData(type) {
-            const tHead = document.getElementById('tableHead');
-            const tBody = document.getElementById('tableBody');
-            tBody.innerHTML = "<tr><td colspan='5' class='text-center p-5'><div class='spinner-border text-primary'></div></td></tr>";
-
-            try {
-                const res = await fetch(SCRIPT_URL, { 
-                    method: 'POST', 
-                    body: JSON.stringify({ action: 'getAllData' }) 
-                }).then(r => r.json());
-
-                tHead.innerHTML = ""; tBody.innerHTML = "";
-
-                if(type === 'guru') {
-                    tHead.innerHTML = "<th>Nama</th><th>NIP</th><th>Mapel</th><th>Email</th>";
-                    res.guru.slice(1).forEach(r => {
-                        tBody.innerHTML += `<tr><td>${r[1]}</td><td>${r[2]}</td><td>${r[6]}</td><td>${r[0]}</td></tr>`;
-                    });
-                } else if(type === 'berkas') {
-                    tHead.innerHTML = "<th>Email</th><th>KK</th><th>SK</th><th>KGB</th><th>Foto</th>";
-                    res.berkas.slice(1).forEach(r => {
-                        tBody.innerHTML += `<tr>
-                            <td>${r[0]}</td>
-                            <td>${r[1] ? `<a href="${r[1]}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>` : '-'}</td>
-                            <td>${r[2] ? `<a href="${r[2]}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>` : '-'}</td>
-                            <td>${r[3] ? `<a href="${r[3]}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>` : '-'}</td>
-                            <td>${r[4] ? `<a href="${r[4]}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>` : '-'}</td>
-                        </tr>`;
-                    });
-                } else if(type === 'kegiatan') {
-                    tHead.innerHTML = "<th>Pengirim</th><th>Judul Kegiatan</th><th>Link</th>";
-                    res.kegiatan.slice(1).forEach(r => {
-                        tBody.innerHTML += `<tr><td>${r[0]}</td><td>${r[1]}</td><td><a href="${r[2]}" target="_blank" class="link-primary">Buka Folder</a></td></tr>`;
-                    });
-                }
-            } catch (e) {
-                tBody.innerHTML = "<tr><td colspan='5' class='text-center text-danger'>Gagal memuat data.</td></tr>";
-            }
-        }
-    </script>
+    function exportExcel() {
+        const wb = XLSX.utils.table_to_book(document.getElementById("adminTable"));
+        XLSX.writeFile(wb, "Data_SMPN13_Update.xlsx");
+    }
+</script>
 </body>
 </html>
