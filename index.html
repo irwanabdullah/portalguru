@@ -224,19 +224,26 @@
     }
 
     async function login() {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('pass').value;
-        toggleLoader(true);
-        const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'login', email, password }) }).then(r => r.json());
-        if (res.status === "success") {
-            session = res;
-            document.getElementById('login-page').style.display = 'none';
-            document.getElementById('main-app').classList.remove('d-none');
-            if (res.role === 'admin') document.getElementById('admin-only').classList.remove('d-none');
-            showPage('modulData', document.querySelector('.nav-link'));
-        } else alert("Email/Password Salah!");
-        toggleLoader(false);
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('pass').value;
+    toggleLoader(true);
+    const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'login', email, password }) }).then(r => r.json());
+    
+    if (res.status === "success") {
+        session = res;
+        document.getElementById('login-page').style.display = 'none';
+        document.getElementById('main-app').classList.remove('d-none');
+        if (res.role === 'admin') document.getElementById('admin-only').classList.remove('d-none');
+        showPage('modulData', document.querySelector('.nav-link'));
+        
+        // SweetAlert Sukses
+        Swal.fire({ icon: 'success', title: 'Berhasil Login', text: 'Selamat datang di Portal Guru!', timer: 2000, showConfirmButton: false });
+    } else {
+        // SweetAlert Gagal
+        Swal.fire({ icon: 'error', title: 'Login Gagal', text: 'Email atau Password Salah!' });
     }
+    toggleLoader(false);
+	}
 
     async function saveData() {
         const data = { email: session.email, nama: document.getElementById('nama').value, nip: document.getElementById('nip').value, pangkat: document.getElementById('pangkat').value, tmptLahir: document.getElementById('tmptLahir').value, tglLahir: document.getElementById('tglLahir').value, mapel: document.getElementById('mapel').value };
