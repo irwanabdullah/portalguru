@@ -344,11 +344,63 @@
     }
 
     async function saveLink() {
-        const data = { email: session.email, judul: document.getElementById('jLink').value, link: document.getElementById('uLink').value };
-        toggleLoader(true);
-        const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'simpanLink', data }) }).then(r => r.json());
-        alert(res.message); toggleLoader(false);
+    const judul = document.getElementById('judulLink').value;
+    const link = document.getElementById('linkDrive').value;
+
+    // Validasi sederhana jika input kosong
+    if (!judul || !link) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Data Belum Lengkap',
+            text: 'Silakan isi Judul dan Link Drive terlebih dahulu!',
+            confirmButtonColor: '#0d6efd'
+        });
+        return;
     }
+
+    toggleLoader(true);
+    try {
+        const res = await fetch(SCRIPT_URL, { 
+            method: 'POST', 
+            body: JSON.stringify({ 
+                action: 'saveLink', 
+                email: session.email, 
+                judul, 
+                link 
+            }) 
+        }).then(r => r.json());
+
+        if (res.status === 'success') {
+            // Notifikasi Sukses
+            Swal.fire({
+                icon: 'success',
+                title: 'Berhasil Terkirim!',
+                text: 'Link Google Drive Anda telah berhasil disimpan ke sistem.',
+                showConfirmButton: false,
+                timer: 2500 // Akan menutup sendiri dalam 2.5 detik
+            });
+            
+            // Reset form setelah berhasil
+            document.getElementById('judulLink').value = '';
+            document.getElementById('linkDrive').value = '';
+        } else {
+            // Notifikasi jika ada error dari server
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal Mengirim',
+                text: res.message || 'Terjadi kesalahan saat menyimpan data.'
+            });
+        }
+    } catch (error) {
+        // Notifikasi jika ada error jaringan
+        Swal.fire({
+            icon: 'error',
+            title: 'Kesalahan Sistem',
+            text: 'Tidak dapat terhubung ke server. Pastikan koneksi internet Anda stabil.'
+        });
+    }
+    toggleLoader(false);
+}
 
     async function fetchAdminData(type) {
     toggleLoader(true);
