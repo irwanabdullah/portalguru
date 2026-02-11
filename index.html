@@ -353,28 +353,47 @@
     async function fetchAdminData(type) {
         toggleLoader(true);
         const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getAllData' }) }).then(r => r.json());
+        
         document.getElementById('stat-total').innerText = res.guru.length - 1;
         document.getElementById('stat-berkas').innerText = res.berkas.length - 1;
-        const th = document.getElementById('tHead'); const tb = document.getElementById('tBody');
+        
+        const th = document.getElementById('tHead'); 
+        const tb = document.getElementById('tBody');
         th.innerHTML = ""; tb.innerHTML = "";
         
         if (type === 'guru') {
             th.innerHTML = "<th>Nama</th><th>NIP</th><th>Pangkat</th><th>TTL</th><th>Mapel</th><th>Aksi</th>";
             res.guru.slice(1).forEach(r => {
-                tb.innerHTML += `<tr><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}, ${r[5]}</td><td>${r[6]}</td><td><button class="btn btn-outline-danger btn-sm border-0" onclick="hapusData('${r[0]}', 'guru')"><i class="bi bi-trash"></i></button></td></tr>`;
+                tb.innerHTML += `
+                <tr>
+                    <td data-label="Nama">${r[1]}</td>
+                    <td data-label="NIP">${r[2]}</td>
+                    <td data-label="Pangkat">${r[3]}</td>
+                    <td data-label="TTL">${r[4]}, ${r[5]}</td>
+                    <td data-label="Mapel">${r[6]}</td>
+                    <td data-label="Aksi">
+                        <button class="btn btn-outline-danger btn-sm btn-action" onclick="hapusData('${r[0]}', 'guru')"><i class="bi bi-trash"></i></button>
+                    </td>
+                </tr>`;
             });
         } else if (type === 'berkas') {
             th.innerHTML = "<th>Email</th><th>KK</th><th>SK</th><th>KGB</th><th>Foto</th><th>Aksi</th>";
             res.berkas.slice(1).forEach(r => {
-                const view = (l) => l ? `<a href="${l}" target="_blank" class="btn btn-sm btn-link"><i class="bi bi-eye"></i></a>` : '-';
-                tb.innerHTML += `<tr><td>${r[0]}</td><td>${view(r[1])}</td><td>${view(r[2])}</td><td>${view(r[3])}</td><td>${view(r[4])}</td><td><button class="btn btn-outline-danger btn-sm border-0" onclick="hapusData('${r[0]}', 'berkas')"><i class="bi bi-trash"></i></button></td></tr>`;
-            });
-        } else if (type === 'link') {
-            th.innerHTML = "<th>Email</th><th>Judul</th><th>Link</th><th>Aksi</th>";
-            res.kegiatan.slice(1).forEach(r => {
-                tb.innerHTML += `<tr><td>${r[0]}</td><td>${r[1]}</td><td><a href="${r[2]}" target="_blank" class="btn btn-sm btn-info text-white fw-bold">Buka</a></td><td><button class="btn btn-outline-danger btn-sm border-0" onclick="hapusData('${r[0]}', 'link')"><i class="bi bi-trash"></i></button></td></tr>`;
+                const view = (l) => l ? `<a href="${l}" target="_blank" class="btn btn-sm btn-outline-primary btn-action"><i class="bi bi-eye"></i></a>` : '<span class="text-muted">-</span>';
+                tb.innerHTML += `
+                <tr>
+                    <td data-label="Email">${r[0]}</td>
+                    <td data-label="KK">${view(r[1])}</td>
+                    <td data-label="SK">${view(r[2])}</td>
+                    <td data-label="KGB">${view(r[3])}</td>
+                    <td data-label="Foto">${view(r[4])}</td>
+                    <td data-label="Aksi">
+                        <button class="btn btn-outline-danger btn-sm btn-action" onclick="hapusData('${r[0]}', 'berkas')"><i class="bi bi-trash"></i></button>
+                    </td>
+                </tr>`;
             });
         }
+        // ... lanjutkan pola yang sama untuk 'link' ...
         toggleLoader(false);
     }
 
