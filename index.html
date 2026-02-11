@@ -224,9 +224,15 @@
     async function saveData() {
         const data = { email: session.email, nama: document.getElementById('nama').value, nip: document.getElementById('nip').value, pangkat: document.getElementById('pangkat').value, tmptLahir: document.getElementById('tmptLahir').value, tglLahir: document.getElementById('tglLahir').value, mapel: document.getElementById('mapel').value };
         toggleLoader(true);
-        const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'simpanData', data }) }).then(r => r.json());
-        alert(res.message); toggleLoader(false);
-    }
+	    const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'simpanData', data }) }).then(r => r.json());
+	    toggleLoader(false);
+	    
+	    Swal.fire({
+	        icon: res.status === 'success' ? 'success' : 'error',
+	        title: 'Informasi',
+	        text: res.message
+	    });
+	}
 
     function uploadFile() {
         const file = document.getElementById('fileInput').files[0];
@@ -277,13 +283,26 @@
     }
 
     async function hapusData(email, context) {
-        if(!confirm(`Hapus data ${context} untuk ${email}?`)) return;
+    const result = await Swal.fire({
+        title: 'Apakah Anda yakin?',
+        text: `Data ${context} untuk ${email} akan dihapus permanently!`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal'
+    });
+
+    if (result.isConfirmed) {
         toggleLoader(true);
         await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'hapusData', email, context }) });
         fetchAdminData(context === 'link' ? 'link' : (context === 'berkas' ? 'berkas' : 'guru'));
         toggleLoader(false);
+        
+        Swal.fire('Terhapus!', 'Data telah berhasil dihapus.', 'success');
     }
-
+	}
     function filterTable() {
         let input = document.getElementById("search").value.toLowerCase();
         let rows = document.getElementById("tBody").getElementsByTagName("tr");
