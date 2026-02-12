@@ -150,7 +150,12 @@
                 <p class="text-muted small">SMPN 13 MAKASSAR</p>
             </div>
             <input type="email" id="email" class="form-control mb-3" placeholder="Email">
-            <input type="password" id="pass" class="form-control mb-4" placeholder="Password">
+            <div class="input-group mb-4">
+				<input type="password" id="pass" class="form-control" placeholder="Password">
+				<span class="input-group-text" onclick="togglePass()" style="cursor: pointer;">
+					<i class="bi bi-eye" id="toggleIcon"></i>
+				</span>
+			</div>
             <button class="btn btn-primary w-100 py-2 fw-bold shadow" onclick="login()">LOGIN</button>
         </div>
     </div>
@@ -294,6 +299,22 @@
         document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
         el.classList.add('active');
     }
+
+	// --- FUNGSI LIHAT PASSWORD ---
+	function togglePass() {
+		const passInput = document.getElementById('pass');
+		const icon = document.getElementById('toggleIcon');
+
+		if (passInput.type === 'password') {
+			passInput.type = 'text'; // Ubah jadi teks agar terlihat
+			icon.classList.remove('bi-eye');
+			icon.classList.add('bi-eye-slash'); // Ubah ikon jadi mata dicoret
+		} else {
+			passInput.type = 'password'; // Kembalikan jadi titik-titik
+			icon.classList.remove('bi-eye-slash');
+			icon.classList.add('bi-eye'); // Kembalikan ikon mata biasa
+		}
+	}
 
     async function login() {
     const email = document.getElementById('email').value;
