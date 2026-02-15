@@ -4,514 +4,572 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Portal Guru - SMPN 13 Makassar</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<style>
-    :root { --dark: #1e293b; --primary: #0d6efd; --bg: #f1f5f9; }
-    html, body { height: 100%; margin: 0; }
-    body { display: flex; flex-direction: column; background: var(--bg); font-family: 'Inter', sans-serif; overflow-x: hidden; }
-    .content-wrapper { flex: 1 0 auto; }
     
-    /* Login Page Mobile Friendly */
-    #login-page { min-height: 85vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
-    
-    /* Sidebar Responsive */
-    .sidebar { background: var(--dark); color: white; min-height: 100vh; transition: 0.3s; z-index: 1050; }
-    .nav-link { color: #94a3b8; cursor: pointer; border-radius: 8px; margin-bottom: 5px; transition: 0.2s; padding: 12px 15px; }
-    .nav-link.active, .nav-link:hover { background: #334155; color: white; }
-    
-    /* Stats Cards */
-    .card { border: none; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 1rem; }
-    .stats-card { border-left: 5px solid var(--primary); background: white; padding: 15px; border-radius: 12px; height: 100%; }
-    
-    /* Loader */
-    #loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); z-index: 9999; display: none; align-items: center; justify-content: center; flex-direction: column; }
-    
-    /* Mobile Overlay */
-    .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1040; }
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    @media (max-width: 768px) { 
-        .sidebar { position: fixed; left: -100%; width: 280px; } 
-        .sidebar.show { left: 0; }
-        .sidebar-overlay.show { display: block; }
-        main { width: 100% !important; padding: 15px !important; }
-        .btn-group-mobile { display: flex; flex-direction: column; gap: 5px; }
-    }
-	
-	footer {
-    text-align: center; /* Mengetengahkan teks */
-    padding: 20px;
-    background: white;
-    border-top: 1px solid #e2e8f0;
-    width: 100%;
-    flex-shrink: 0; /* Memastikan footer tidak mengecil */
-    font-size: 0.9rem;
-    color: #64748b;
-}
+    <style>
+        :root { 
+            --primary-color: #4e73df; 
+            --secondary-color: #858796; 
+            --bg-color: #f8f9fc;
+            --sidebar-width: 260px;
+        }
+        
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background-color: var(--bg-color); 
+            height: 100vh;
+            overflow-x: hidden;
+        }
 
-	body { 
-    display: flex; 
-    flex-direction: column; 
-    min-height: 100vh; /* Pastikan tinggi minimal memenuhi layar */
-    background: var(--bg); 
-    font-family: 'Inter', sans-serif; 
-    overflow-x: hidden; 
-}
+        /* --- STYLE LOGIN PAGE (Glassmorphism) --- */
+        #login-page {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .card-login {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            border: none;
+        }
 
-.content-wrapper { 
-    flex: 1 0 auto; /* Ini yang mendorong footer ke bawah */
-}
+        .form-control:focus {
+            box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.25);
+            border-color: #4e73df;
+        }
 
-/* Custom Scrollbar untuk Tabel */
-.table-responsive::-webkit-scrollbar {
-    height: 8px;
-}
-.table-responsive::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 10px;
-}
+        /* --- STYLE DASHBOARD --- */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100%;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+            z-index: 1000;
+            transition: all 0.3s;
+        }
 
-/* Modernisasi Tabel */
-.table {
-    border-collapse: separate;
-    border-spacing: 0 8px; /* Memberi jarak antar baris */
-}
-.table thead th {
-    background-color: #f8fafc !important;
-    border: none;
-    color: #64748b;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    padding: 15px;
-}
-.table tbody tr {
-    background-color: white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-    transition: transform 0.2s;
-}
-.table tbody tr:hover {
-    transform: scale(1.01);
-    background-color: #f1f5f9 !important;
-}
-.table td {
-    padding: 15px !important;
-    border: none;
-    vertical-align: middle;
-}
-.table td:first-child { border-radius: 10px 0 0 10px; }
-.table td:last-child { border-radius: 0 10px 10px 0; }
+        .sidebar-header {
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 1px solid #f0f0f0;
+        }
 
-/* Styling Tombol di Tabel */
-.btn-action {
-    padding: 5px 10px;
-    border-radius: 8px;
-    transition: 0.3s;
-}
+        .nav-link {
+            padding: 15px 25px;
+            color: #5a5c69;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            border-left: 4px solid transparent;
+            transition: 0.2s;
+        }
 
-/* Penyesuaian Mobile untuk Dashboard */
-@media (max-width: 768px) {
-    .stats-card h3 { font-size: 1.5rem; }
-    .table thead { display: none; } /* Sembunyikan header di HP */
-    .table, .table tbody, .table tr, .table td { display: block; width: 100%; }
-    .table tr { margin-bottom: 15px; border-radius: 12px; border: 1px solid #e2e8f0; }
-    .table td { 
-        text-align: right; 
-        padding-left: 50% !important; 
-        position: relative; 
-        border-bottom: 1px solid #f1f5f9;
-    }
-    /* Label untuk tampilan kartu di HP */
-    .table td::before {
-        content: attr(data-label);
-        position: absolute;
-        left: 15px;
-        width: 45%;
-        text-align: left;
-        font-weight: 600;
-        color: #64748b;
-    }
-}
+        .nav-link:hover { background: #f8f9fa; color: var(--primary-color); }
+        
+        .nav-link.active {
+            color: var(--primary-color);
+            background: #f0f4ff;
+            border-left: 4px solid var(--primary-color);
+        }
 
-</style>
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 30px;
+            transition: all 0.3s;
+        }
+
+        .card-module {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            background: #fff;
+            transition: transform 0.2s;
+        }
+        
+        .page-title { font-weight: 700; color: #4e73df; margin-bottom: 25px; }
+
+        /* Badge Status */
+        .badge-status {
+            padding: 8px 12px;
+            border-radius: 50px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        .badge-pending { background: #eaecf4; color: #858796; }
+        .badge-success { background: #d1fae5; color: #065f46; }
+
+        /* Loader Overlay */
+        #loader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(5px);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Responsive Mobile */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%; height: auto; bottom: 0; top: auto;
+                display: flex; justify-content: space-around;
+                padding: 10px; border-top: 1px solid #ddd;
+            }
+            .sidebar-header { display: none; }
+            .main-content { margin-left: 0; padding-bottom: 80px; }
+            .nav-link { flex-direction: column; font-size: 12px; padding: 5px; border-left: none; border-top: 3px solid transparent; }
+            .nav-link.active { border-left: none; border-top: 3px solid var(--primary-color); }
+            .nav-link span { display: block; margin-top: 5px; }
+        }
+    </style>
 </head>
 <body oncontextmenu="return false;">
 
-<div id="loader"><div class="spinner-border text-primary"></div><p class="mt-2 fw-bold">Memproses...</p></div>
+<div id="loader">
+    <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status"></div>
+    <p class="mt-3 fw-bold text-primary">Memproses Data...</p>
+</div>
 
-<div class="content-wrapper">
-    <div id="login-page" class="container">
-        <div class="card p-4 mx-auto shadow-lg border-0" style="max-width: 400px; width: 100%;">
-            <div class="text-center mb-4">
-                <i class="bi bi-person-circle text-primary" style="font-size: 3.5rem;"></i>
-                <h4 class="fw-bold mt-2">LOGIN PORTAL</h4>
-                <p class="text-muted small">SMPN 13 MAKASSAR</p>
+<div id="login-page">
+    <div class="card-login">
+        <div class="text-center mb-4">
+            <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                <i class="bi bi-mortarboard-fill fs-2"></i>
             </div>
-            <input type="email" id="email" class="form-control mb-3" placeholder="Email">
-            <div class="input-group mb-4">
-				<input type="password" id="pass" class="form-control" placeholder="Password">
-				<span class="input-group-text" onclick="togglePass()" style="cursor: pointer;">
-					<i class="bi bi-eye" id="toggleIcon"></i>
-				</span>
-			</div>
-            <button class="btn btn-primary w-100 py-2 fw-bold shadow" onclick="login()">LOGIN</button>
-			<a href="https://irwanabdullah.github.io/absenguru/" class="btn btn-link text-decoration-none text-muted w-100 mt-4 small">
-				<i class="bi bi-box-arrow-left"></i> Presensi Online
-			</a>
-			
+            <h4 class="fw-bold text-dark">Portal Guru</h4>
+            <p class="text-muted small">SMPN 13 Makassar</p>
         </div>
-    </div>
+        
+        <div class="form-group mb-3">
+            <label class="form-label small fw-bold text-secondary">Email Address</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-envelope text-primary"></i></span>
+                <input type="email" id="email" class="form-control border-start-0 ps-0" placeholder="nama@guru.smp.belajar.id">
+            </div>
+        </div>
 
-    <div id="main-app" class="container-fluid d-none">
-		<div class="d-md-none bg-white p-3 shadow-sm d-flex justify-between align-items-center mb-3">
-			<button class="btn btn-dark" onclick="toggleSidebar()">
-        <i class="bi bi-list"></i> Menu
-			</button>
-		<span class="fw-bold text-primary">PORTAL GURU</span>
-		</div>
+        <div class="form-group mb-4">
+            <label class="form-label small fw-bold text-secondary">Password</label>
+            <div class="input-group">
+                <span class="input-group-text bg-white border-end-0"><i class="bi bi-lock text-primary"></i></span>
+                <input type="password" id="pass" class="form-control border-start-0 border-end-0 ps-0" placeholder="••••••••">
+                <button class="btn btn-outline-secondary border-start-0 bg-white" type="button" onclick="togglePassword()">
+                    <i class="bi bi-eye-slash" id="toggleIcon"></i>
+                </button>
+            </div>
+        </div>
 
-		<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
-        <div class="row">
-            <nav class="col-md-2 sidebar p-3" id="sidebarMenu">
-                <div class="text-center py-4 border-bottom border-secondary mb-3"><h5 class="fw-bold text-info">E-DATA GURU</h5></div>
-                <div class="nav flex-column">
-                    <a class="nav-link active" onclick="showPage('modulData', this)"><i class="bi bi-person-badge me-2"></i> Identitas Diri</a>
-                    <a class="nav-link" onclick="showPage('modulBerkas', this)"><i class="bi bi-cloud-arrow-up me-2"></i> Unggah Berkas</a>
-                    <a class="nav-link" onclick="showPage('modulLink', this)"><i class="bi bi-link-45deg me-2"></i> Link Drive</a>
-                    <div id="admin-only" class="d-none mt-4 pt-3 border-top border-secondary">
-                        <small class="text-muted px-2 d-block mb-2">ADMIN PANEL</small>
-                        <a class="nav-link text-warning" onclick="showPage('modulAdmin', this); fetchAdminData('guru')"><i class="bi bi-speedometer2 me-2"></i> Dashboard Admin</a>
-                    </div>
-                    <a class="nav-link text-danger mt-5" onclick="location.reload()"><i class="bi bi-power me-2"></i> Logout</a>
-                </div>
-            </nav>
-
-            <main class="col-md-10 p-4">
-                <div id="modulData" class="page">
-                    <h3 class="fw-bold mb-4 text-primary">Profil Guru</h3>
-                    <div class="card p-4">
-                        <div class="row g-3">
-                            <div class="col-md-6"><label class="small fw-bold">Nama Lengkap</label><input type="text" id="nama" class="form-control" placeholder="Contoh: Dr. Abdullah, M.Pd.,S.Pd"></div>
-                            <div class="col-md-6"><label class="small fw-bold">NIP</label><input type="text" id="nip" class="form-control" placeholder="16 Angka"></div>
-                            <div class="col-md-4"><label class="small fw-bold">Pangkat/Golongan</label>
-                                <select id="pangkat" class="form-select">                                    
-									<option value="III/a">III/a</option>
-									<option value="III/b">III/b</option>
-									<option value="III/c">III/c</option>
-									<option value="III/d">III/d</option>
-                                    <option value="IV/a">IV/a</option>
-									<option value="IV/b">IV/b</option>
-									<option value="IV/c">IV/c</option>
-									<option value="IV/d">IV/d</option>
-									<option value="IX">IX</option>
-									<option value="II">II</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4"><label class="small fw-bold">Tempat Lahir</label><input type="text" id="tmptLahir" class="form-control" placeholder="Makassar"></div>
-                            <div class="col-md-4"><label class="small fw-bold">Tgl Lahir</label><input type="date" id="tglLahir" class="form-control"></div>
-                            <div class="col-md-12"><label class="small fw-bold">Mata Pelajaran/Job Desk</label>
-                                <select id="mapel" class="form-select">
-                                    <option value="PAI">Pend.Agama Islam</option>
-									<option value="PAK">Pend.Agama Kristen</option>
-									<option value="Bahasa Indonesia">Bahasa Indonesia</option>
-									<option value="Bahasa Inggris">Bahasa Inggris</option>
-                                    <option value="Matematika">Matematika</option>
-									<option value="IPA">IPA</option>
-									<option value="IPS">IPS</option>
-                                    <option value="PJOK">PJOK</option>
-									<option value="SBK">Seni Budaya</option>
-									<option value="Prakarya">Prakarya</option>
-									<option value="Informatika">Informatika</option>
-									<option value="Mulok">Mulok</option>
-									<option value="BK">Konseling</option>
-									<option value="Lainnya">TU</option>
-                                </select>
-                            </div>
-                        </div>
-                        <button class="btn btn-primary mt-4 fw-bold shadow-sm" onclick="saveData()">SIMPAN DATA</button>
-                    </div>
-                </div>
-
-                <div id="modulAdmin" class="page d-none">
-					<h3 class="fw-bold mb-4 text-danger">Monitoring Dashboard</h3>
-					
-					<div class="row g-3 mb-4">
-						<div class="col-6 col-md-4">
-							<div class="stats-card shadow-sm"><small class="text-muted fw-bold">GURU</small><h3 id="stat-total" class="fw-bold mb-0">0</h3></div>
-						</div>
-						<div class="col-6 col-md-4">
-							<div class="stats-card shadow-sm" style="border-left-color: #198754;"><small class="text-muted fw-bold">BERKAS</small><h3 id="stat-berkas" class="fw-bold mb-0">0</h3></div>
-						</div>
-					</div>
-
-					<div class="card p-3 mb-3 shadow-sm">
-						<div class="row g-3 align-items-center">
-							<div class="col-12 col-lg-5">
-								<div class="btn-group w-100">
-									<button class="btn btn-outline-dark btn-sm" onclick="fetchAdminData('guru')">Guru</button>
-									<button class="btn btn-outline-dark btn-sm" onclick="fetchAdminData('berkas')">Berkas</button>
-									<button class="btn btn-outline-dark btn-sm" onclick="fetchAdminData('link')">Link</button>
-								</div>
-							</div>
-							<div class="col-8 col-lg-4"><input type="text" id="search" class="form-control form-control-sm" placeholder="Cari..." onkeyup="filterTable()"></div>
-							<div class="col-4 col-lg-3 text-end"><button class="btn btn-success btn-sm w-100 fw-bold" onclick="exportExcel()"><i class="bi bi-file-excel"></i></button></div>
-						</div>
-					</div>
-				</div>
-
-                    <div class="card overflow-hidden shadow-sm">
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle mb-0" id="adminTable">
-                                <thead class="table-primary small text-uppercase"><tr id="tHead"></tr></thead>
-                                <tbody id="tBody" class="small"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="modulBerkas" class="page d-none">
-                    <h3 class="fw-bold mb-4 text-primary">Upload Berkas</h3>
-                    <div class="card p-4 shadow-sm border-0">
-                        <select id="jenis" class="form-select mb-3"><option value="KK">Kartu Keluarga (KK)</option><option value="SK">SK Terakhir</option><option value="KGB">KGB Terakhir</option><option value="Foto">Foto Resmi</option></select>
-                        <input type="file" id="fileInput" class="form-control mb-3"><button class="btn btn-primary fw-bold w-100" onclick="uploadFile()">UNGGAH FILE</button>
-                    </div>
-                </div>
-                <div id="modulLink" class="page d-none">
-                    <h3 class="fw-bold mb-4 text-primary">Kirim Link Google Drive</h3>
-                    <div class="card p-4 shadow-sm border-0">
-                        <input type="text" id="jLink" class="form-control mb-3" placeholder="Link EKinerja_NamaGuru"><input type="url" id="uLink" class="form-control mb-3" placeholder="https://drive.google.com/..."><button class="btn btn-info text-white fw-bold w-100" onclick="saveLink()">KIRIM LINK</button>
-                    </div>
-                </div>
-            </main>
+        <button class="btn btn-primary w-100 py-2 fw-bold rounded-pill shadow-sm mb-3" onclick="login()">
+            MASUK APLIKASI
+        </button>
+        
+        <div class="text-center">
+            <a href="<?= ScriptApp.getService().getUrl() ?>?page=admin" class="text-decoration-none small text-muted hover-primary">
+                <i class="bi bi-shield-lock me-1"></i> Login Administrator
+            </a>
         </div>
     </div>
 </div>
 
-<footer>&copy; <span id="year"></span> | <a href="https://smpn13makassar.my.id" target="_blank" style="text-decoration:none; font-weight:bold;">SMPN 13 MAKASSAR</a></footer>
+<div id="main-app" class="d-none">
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h5 class="fw-bold text-primary m-0"><i class="bi bi-grid-fill me-2"></i>DASHBOARD</h5>
+            <small class="text-muted">Guru Panel</small>
+        </div>
+        <div class="nav flex-column mt-3">
+            <a class="nav-link active" onclick="showPage('modulData', this)">
+                <i class="bi bi-person-circle fs-5 me-2"></i> <span>Data Diri</span>
+            </a>
+            <a class="nav-link" onclick="showPage('modulBerkas', this)">
+                <i class="bi bi-file-earmark-arrow-up fs-5 me-2"></i> <span>Upload Berkas</span>
+            </a>
+            <a class="nav-link" onclick="showPage('modulLink', this)">
+                <i class="bi bi-link-45deg fs-5 me-2"></i> <span>Link Kegiatan</span>
+            </a>
+            <div class="mt-auto p-3">
+                <button class="btn btn-danger w-100 rounded-pill" onclick="logout()">
+                    <i class="bi bi-box-arrow-left me-2"></i> Logout
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h4 class="fw-bold text-dark m-0">Selamat Datang, Guru!</h4>
+                <p class="text-muted small m-0" id="user-email-display">user@email.com</p>
+            </div>
+            <div class="d-none d-md-block">
+                <span class="badge bg-primary rounded-pill px-3 py-2">Tahun Ajaran 2025/2026</span>
+            </div>
+        </div>
+
+        <div id="modulData" class="page animate-fade">
+            <h5 class="page-title">Identitas Pegawai</h5>
+            <div class="card card-module p-4">
+                <div class="alert alert-primary d-flex align-items-center" role="alert">
+                    <i class="bi bi-info-circle-fill me-2 fs-4"></i>
+                    <div class="small">Silakan periksa data Anda. Jika ada kesalahan, ubah dan klik tombol Simpan.</div>
+                </div>
+                
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold small text-secondary">Nama Lengkap & Gelar</label>
+                        <input type="text" id="nama" class="form-control form-control-lg">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold small text-secondary">NIP</label>
+                        <input type="number" id="nip" class="form-control form-control-lg">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold small text-secondary">Pangkat/Golongan</label>
+                        <select id="pangkat" class="form-select">
+                            <option value="">- Pilih -</option>
+                            <option value="III/a">III/a</option><option value="III/b">III/b</option>
+                            <option value="III/c">III/c</option><option value="III/d">III/d</option>
+                            <option value="IV/a">IV/a</option><option value="IV/b">IV/b</option>
+                            <option value="IV/c">IV/c</option><option value="IV/d">IV/d</option>
+                            <option value="IX">PPPK (IX)</option><option value="II">Honorer</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold small text-secondary">Tempat Lahir</label>
+                        <input type="text" id="tmptLahir" class="form-control">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-bold small text-secondary">Tanggal Lahir</label>
+                        <input type="date" id="tglLahir" class="form-control">
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label fw-bold small text-secondary">Mata Pelajaran Utama</label>
+                        <select id="mapel" class="form-select">
+                            <option value="PAI">Pend.Agama Islam</option><option value="PAK">Pend.Agama Kristen</option>
+                            <option value="Bahasa Indonesia">Bahasa Indonesia</option><option value="Bahasa Inggris">Bahasa Inggris</option>
+                            <option value="Matematika">Matematika</option><option value="IPA">IPA</option><option value="PKN">PKN</option>
+                            <option value="IPS">IPS</option><option value="PJOK">PJOK</option>
+                            <option value="SBK">Seni Budaya</option><option value="Prakarya">Prakarya</option>
+                            <option value="Informatika">Informatika</option><option value="Mulok">Mulok</option>
+                            <option value="BK">Konseling</option><option value="TU">Tata Usaha</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-4 text-end">
+                    <button class="btn btn-primary px-4 py-2 fw-bold rounded-pill" onclick="saveData()">
+                        <i class="bi bi-save me-2"></i>SIMPAN PERUBAHAN
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="modulBerkas" class="page d-none animate-fade">
+            <h5 class="page-title">Dokumen Digital</h5>
+            <div class="row">
+                <div class="col-md-5 mb-4">
+                    <div class="card card-module p-4 h-100">
+                        <h6 class="fw-bold mb-3 border-bottom pb-2">Form Unggah</h6>
+                        <label class="form-label small fw-bold">Jenis Dokumen</label>
+                        <select id="jenis" class="form-select mb-3">
+                            <option value="KK">Kartu Keluarga (KK)</option>
+                            <option value="SK">SK Terakhir</option>
+                            <option value="KGB">KGB Terakhir</option>
+                            <option value="Foto">Foto Resmi</option>
+                        </select>
+                        <label class="form-label small fw-bold">Pilih File (PDF/JPG)</label>
+                        <input type="file" id="fileInput" class="form-control mb-4">
+                        <button class="btn btn-success w-100 fw-bold rounded-pill" onclick="uploadFile()">
+                            <i class="bi bi-cloud-upload me-2"></i> MULAI UPLOAD
+                        </button>
+                    </div>
+                </div>
+                <div class="col-md-7 mb-4">
+                    <div class="card card-module p-4 h-100">
+                        <h6 class="fw-bold mb-3 border-bottom pb-2">Status Berkas Anda</h6>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3 border-0">
+                                <div><i class="bi bi-card-heading me-2 text-primary"></i> Kartu Keluarga</div>
+                                <span id="status-KK" class="badge-status badge-pending">Belum Ada</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3 border-0 bg-light rounded">
+                                <div><i class="bi bi-file-earmark-text me-2 text-primary"></i> SK Terakhir</div>
+                                <span id="status-SK" class="badge-status badge-pending">Belum Ada</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3 border-0">
+                                <div><i class="bi bi-cash-coin me-2 text-primary"></i> KGB Terakhir</div>
+                                <span id="status-KGB" class="badge-status badge-pending">Belum Ada</span>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center py-3 border-0 bg-light rounded">
+                                <div><i class="bi bi-person-square me-2 text-primary"></i> Foto Resmi</div>
+                                <span id="status-Foto" class="badge-status badge-pending">Belum Ada</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modulLink" class="page d-none animate-fade">
+            <h5 class="page-title">Laporan Link Drive</h5>
+            <div class="card card-module p-4 mb-4">
+                <div class="row align-items-end">
+                    <div class="col-md-5 mb-3 mb-md-0">
+                        <label class="form-label small fw-bold">Judul Kegiatan/Berkas</label>
+                        <input type="text" id="jLink" class="form-control" placeholder="Contoh: Modul Ajar Genap">
+                    </div>
+                    <div class="col-md-5 mb-3 mb-md-0">
+                        <label class="form-label small fw-bold">Link Google Drive</label>
+                        <input type="url" id="uLink" class="form-control" placeholder="https://drive.google.com/...">
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-info text-white w-100 fw-bold rounded-pill" onclick="saveLink()">
+                            <i class="bi bi-send-fill"></i> KIRIM
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <h6 class="fw-bold mb-3 text-secondary">Riwayat Pengiriman</h6>
+            <div class="card card-module overflow-hidden">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light text-secondary small">
+                            <tr>
+                                <th class="py-3 ps-4">NAMA KEGIATAN</th>
+                                <th class="py-3 text-end pe-4">AKSI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-links">
+                            <tr><td colspan="2" class="text-center py-4 text-muted">Belum ada riwayat pengiriman</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzY62nz6JVosElWP1O0OFWdybMssEco9spugXugn4FX_lFrJCQwdU9zeNAgFnpa9MU--Q/exec"; // GANTI DENGAN URL DEPLOY ANDA
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx0OqVHBP6lFlXXn36SB-cJ0hH4_RQ8iuRJUrKxN3MpM0opqoekjVGtnNIwtdZiWm9hKg/exec"; 
     let session = {};
-    document.getElementById('year').innerText = new Date().getFullYear();
 
-    function toggleLoader(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }
+    // Efek Transisi Halaman
     function showPage(id, el) {
         document.querySelectorAll('.page').forEach(p => p.classList.add('d-none'));
-        document.getElementById(id).classList.remove('d-none');
+        const target = document.getElementById(id);
+        target.classList.remove('d-none');
+        
+        // Animasi fade in sederhana
+        target.style.opacity = 0;
+        setTimeout(() => target.style.opacity = 1, 50);
+
         document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
-        el.classList.add('active');
+        if(el) el.classList.add('active');
     }
 
-	// --- FUNGSI LIHAT PASSWORD ---
-	function togglePass() {
-		const passInput = document.getElementById('pass');
-		const icon = document.getElementById('toggleIcon');
+    // Toggle Password Visibility
+    function togglePassword() {
+        const passInput = document.getElementById('pass');
+        const icon = document.getElementById('toggleIcon');
+        if (passInput.type === "password") {
+            passInput.type = "text";
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        } else {
+            passInput.type = "password";
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        }
+    }
 
-		if (passInput.type === 'password') {
-			passInput.type = 'text'; // Ubah jadi teks agar terlihat
-			icon.classList.remove('bi-eye');
-			icon.classList.add('bi-eye-slash'); // Ubah ikon jadi mata dicoret
-		} else {
-			passInput.type = 'password'; // Kembalikan jadi titik-titik
-			icon.classList.remove('bi-eye-slash');
-			icon.classList.add('bi-eye'); // Kembalikan ikon mata biasa
-		}
-	}
+    function toggleLoader(s) { document.getElementById('loader').style.display = s ? 'flex' : 'none'; }
+
+    // Notifikasi SweetAlert yang Reusable
+    function showNotif(type, title, text) {
+        Swal.fire({
+            icon: type,
+            title: title,
+            text: text,
+            confirmButtonColor: '#4e73df',
+            timer: type === 'success' ? 2000 : undefined
+        });
+    }
 
     async function login() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('pass').value;
-    toggleLoader(true);
-    const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'login', email, password }) }).then(r => r.json());
-    
-    if (res.status === "success") {
-        session = res;
-        document.getElementById('login-page').style.display = 'none';
-        document.getElementById('main-app').classList.remove('d-none');
-        if (res.role === 'admin') document.getElementById('admin-only').classList.remove('d-none');
-        showPage('modulData', document.querySelector('.nav-link'));
-        
-        // SweetAlert Sukses
-        Swal.fire({ icon: 'success', title: 'Berhasil Login', text: 'Selamat datang di Portal Guru!', timer: 2000, showConfirmButton: false });
-    } else {
-        // SweetAlert Gagal
-        Swal.fire({ icon: 'error', title: 'Login Gagal', text: 'Email atau Password Salah!' });
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('pass').value;
+        if(!email || !password) return showNotif('warning', 'Peringatan', 'Mohon isi email dan password!');
+
+        toggleLoader(true);
+        try {
+            const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'login', email, password }) }).then(r => r.json());
+            
+            if (res.status === "success") {
+                session = res;
+                document.getElementById('user-email-display').innerText = session.email;
+                
+                await fetchGuruData(session.email);
+
+                document.getElementById('login-page').style.display = 'none';
+                document.getElementById('main-app').classList.remove('d-none');
+                
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Login Berhasil',
+                    text: 'Selamat datang kembali!',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    backdrop: `rgba(0,0,123,0.4)`
+                });
+            } else {
+                showNotif('error', 'Login Gagal', res.message);
+            }
+        } catch (e) {
+            showNotif('error', 'Error', 'Terjadi kesalahan koneksi.');
+        }
+        toggleLoader(false);
     }
-    toggleLoader(false);
-	}
+
+    async function fetchGuruData(email) {
+        const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'getGuruData', email }) }).then(r => r.json());
+        
+        if(res.status === 'success') {
+            // Isi Form Profil
+            if(res.profil) {
+                document.getElementById('nama').value = res.profil.nama || "";
+                document.getElementById('nip').value = res.profil.nip || "";
+                document.getElementById('pangkat').value = res.profil.pangkat || "";
+                document.getElementById('tmptLahir').value = res.profil.tmptLahir || "";
+                document.getElementById('tglLahir').value = res.profil.tglLahir || "";
+                document.getElementById('mapel').value = res.profil.mapel || "";
+            }
+
+            // Update Status Berkas (UI Baru)
+            const updateBadge = (id, url) => {
+                const el = document.getElementById(id);
+                if(url) {
+                    el.innerHTML = `<a href="${url}" target="_blank" class="text-decoration-none text-success fw-bold"><i class="bi bi-check-circle-fill"></i> Selesai (Lihat)</a>`;
+                    el.className = "badge-status badge-success";
+                } else {
+                    el.innerText = "Belum Ada";
+                    el.className = "badge-status badge-pending";
+                }
+            };
+            updateBadge('status-KK', res.berkas.KK);
+            updateBadge('status-SK', res.berkas.SK);
+            updateBadge('status-KGB', res.berkas.KGB);
+            updateBadge('status-Foto', res.berkas.Foto);
+
+            // Update History Link
+            const tbody = document.getElementById('history-links');
+            if(res.links.length > 0) {
+                tbody.innerHTML = "";
+                res.links.forEach(l => {
+                    tbody.innerHTML += `
+                    <tr>
+                        <td class="ps-4 fw-bold text-dark">${l.judul}</td>
+                        <td class="text-end pe-4"><a href="${l.url}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill px-3">Buka Link</a></td>
+                    </tr>`;
+                });
+            }
+        }
+    }
 
     async function saveData() {
-        const data = { email: session.email, nama: document.getElementById('nama').value, nip: document.getElementById('nip').value, pangkat: document.getElementById('pangkat').value, tmptLahir: document.getElementById('tmptLahir').value, tglLahir: document.getElementById('tglLahir').value, mapel: document.getElementById('mapel').value };
+        const data = { 
+            email: session.email, 
+            nama: document.getElementById('nama').value, 
+            nip: document.getElementById('nip').value, 
+            pangkat: document.getElementById('pangkat').value, 
+            tmptLahir: document.getElementById('tmptLahir').value, 
+            tglLahir: document.getElementById('tglLahir').value, 
+            mapel: document.getElementById('mapel').value 
+        };
         toggleLoader(true);
-    const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'simpanData', data }) }).then(r => r.json());
-    toggleLoader(false);
-    
-    Swal.fire({
-        icon: res.status === 'success' ? 'success' : 'error',
-        title: 'Informasi',
-        text: res.message
-    });
-	}
+        const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'simpanData', data }) }).then(r => r.json());
+        toggleLoader(false);
+        
+        if(res.status === 'success') showNotif('success', 'Berhasil', res.message);
+        else showNotif('error', 'Gagal', res.message);
+    }
 
     function uploadFile() {
         const file = document.getElementById('fileInput').files[0];
         const jenis = document.getElementById('jenis').value;
-        if (!file) return alert("Pilih file!");
+        if (!file) return showNotif('warning', 'File Kosong', 'Silakan pilih file PDF atau JPG!');
+        
         toggleLoader(true);
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = async () => {
-            const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'upload', base64: reader.result, fileName: file.name, email: session.email, jenis }) }).then(r => r.json());
-            alert(res.message); toggleLoader(false);
+            const res = await fetch(SCRIPT_URL, { 
+                method: 'POST', 
+                body: JSON.stringify({ action: 'upload', base64: reader.result, fileName: file.name, email: session.email, jenis }) 
+            }).then(r => r.json());
+            
+            toggleLoader(false);
+            if(res.status === 'success') {
+                showNotif('success', 'Terupload', res.message);
+                fetchGuruData(session.email);
+            } else {
+                showNotif('error', 'Gagal', res.message);
+            }
         };
     }
 
     async function saveLink() {
-        const data = { email: session.email, judul: document.getElementById('jLink').value, link: document.getElementById('uLink').value };
+        const j = document.getElementById('jLink').value;
+        const u = document.getElementById('uLink').value;
+        if(!j || !u) return showNotif('warning', 'Data Kurang', 'Judul dan Link wajib diisi!');
+
         toggleLoader(true);
-        const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'simpanLink', data }) }).then(r => r.json());
-        alert(res.message); toggleLoader(false);
-    }
-
-    async function fetchAdminData(type) {
-    toggleLoader(true);
-    try {
-        const res = await fetch(SCRIPT_URL, { 
-            method: 'POST', 
-            body: JSON.stringify({ action: 'getAllData' }) 
-        }).then(r => r.json());
-
-        // Update statistik di dashboard
-        document.getElementById('stat-total').innerText = (res.guru.length - 1) || 0;
-        document.getElementById('stat-berkas').innerText = (res.berkas.length - 1) || 0;
-
-        const th = document.getElementById('tHead'); 
-        const tb = document.getElementById('tBody');
-        th.innerHTML = ""; 
-        tb.innerHTML = "";
-        
-        if (type === 'guru') {
-            th.innerHTML = "<th>Nama</th><th>NIP</th><th>Pangkat</th><th>TTL</th><th>Mapel</th><th>Aksi</th>";
-            res.guru.slice(1).forEach(r => {
-                tb.innerHTML += `
-                <tr>
-                    <td data-label="Nama">${r[1] || '-'}</td>
-                    <td data-label="NIP">${r[2] || '-'}</td>
-                    <td data-label="Pangkat">${r[3] || '-'}</td>
-                    <td data-label="TTL">${r[4]}, ${r[5]}</td>
-                    <td data-label="Mapel">${r[6] || '-'}</td>
-                    <td data-label="Aksi">
-                        <button class="btn btn-outline-danger btn-sm btn-action" onclick="hapusData('${r[0]}', 'guru')"><i class="bi bi-trash"></i></button>
-                    </td>
-                </tr>`;
-            });
-        } 
-        else if (type === 'berkas') {
-            th.innerHTML = "<th>Email</th><th>KK</th><th>SK</th><th>KGB</th><th>Foto</th><th>Aksi</th>";
-            res.berkas.slice(1).forEach(r => {
-                const view = (l) => l ? `<a href="${l}" target="_blank" class="btn btn-sm btn-outline-primary btn-action"><i class="bi bi-eye"></i></a>` : '<span class="text-muted small">Kosong</span>';
-                tb.innerHTML += `
-                <tr>
-                    <td data-label="Email">${r[0]}</td>
-                    <td data-label="KK">${view(r[1])}</td>
-                    <td data-label="SK">${view(r[2])}</td>
-                    <td data-label="KGB">${view(r[3])}</td>
-                    <td data-label="Foto">${view(r[4])}</td>
-                    <td data-label="Aksi">
-                        <button class="btn btn-outline-danger btn-sm btn-action" onclick="hapusData('${r[0]}', 'berkas')"><i class="bi bi-trash"></i></button>
-                    </td>
-                </tr>`;
-            });
-        } 
-        else if (type === 'link') {
-            th.innerHTML = "<th>Email</th><th>Judul</th><th>Link Drive</th><th>Aksi</th>";
-            
-            // Pastikan 'res.kegiatan' sesuai dengan nama array yang dikirim dari Google Apps Script Anda
-            const dataLink = res.kegiatan || []; 
-            
-            if (dataLink.length > 1) {
-                dataLink.slice(1).forEach(r => {
-                    tb.innerHTML += `
-                    <tr>
-                        <td data-label="Email">${r[0]}</td>
-                        <td data-label="Judul">${r[1]}</td>
-                        <td data-label="Link Drive">
-                            <a href="${r[2]}" target="_blank" class="btn btn-sm btn-info text-white fw-bold btn-action">
-                                <i class="bi bi-box-arrow-up-right"></i> Buka Link
-                            </a>
-                        </td>
-                        <td data-label="Aksi">
-                            <button class="btn btn-outline-danger btn-sm btn-action" onclick="hapusData('${r[0]}', 'link')"><i class="bi bi-trash"></i></button>
-                        </td>
-                    </tr>`;
-                });
-            } else {
-                tb.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-muted">Belum ada data link drive.</td></tr>`;
-            }
-        }
-    } catch (error) {
-        console.error("Error:", error);
-        Swal.fire('Error', 'Gagal memuat data. Periksa koneksi atau URL Script Anda.', 'error');
-    }
-    toggleLoader(false);
-}
-
-    async function hapusData(email, context) {
-    const result = await Swal.fire({
-        title: 'Apakah Anda yakin?',
-        text: `Data ${context} untuk ${email} akan dihapus permanently!`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Ya, Hapus!',
-        cancelButtonText: 'Batal'
-    });
-
-    if (result.isConfirmed) {
-        toggleLoader(true);
-        await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'hapusData', email, context }) });
-        fetchAdminData(context === 'link' ? 'link' : (context === 'berkas' ? 'berkas' : 'guru'));
+        const res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'simpanLink', data: { email: session.email, judul: j, link: u } }) }).then(r => r.json());
         toggleLoader(false);
-        
-        Swal.fire('Terhapus!', 'Data telah berhasil dihapus.', 'success');
-    }
-	}
 
-    function filterTable() {
-        let input = document.getElementById("search").value.toLowerCase();
-        let rows = document.getElementById("tBody").getElementsByTagName("tr");
-        for (let row of rows) { row.style.display = row.innerText.toLowerCase().includes(input) ? "" : "none"; }
-    }
-
-    function exportExcel() {
-        const wb = XLSX.utils.table_to_book(document.getElementById("adminTable"));
-        XLSX.writeFile(wb, "Data_SMPN13_Update.xlsx");
-    }
-	
-	// Fungsi Toggle Sidebar Mobile
-    function toggleSidebar() {
-        const sidebar = document.getElementById('sidebarMenu');
-        const overlay = document.getElementById('sidebarOverlay');
-        sidebar.classList.toggle('show');
-        overlay.classList.toggle('show');
-    }
-
-    // Modifikasi fungsi showPage agar otomatis menutup sidebar di mobile
-    function showPage(id, el) {
-        document.querySelectorAll('.page').forEach(p => p.classList.add('d-none'));
-        document.getElementById(id).classList.remove('d-none');
-        document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
-        el.classList.add('active');
-        
-        // Tutup sidebar jika dalam mode mobile
-        if (window.innerWidth <= 768) {
-            toggleSidebar();
+        if(res.status === 'success') {
+             showNotif('success', 'Terkirim', res.message);
+             document.getElementById('jLink').value = "";
+             document.getElementById('uLink').value = "";
+             fetchGuruData(session.email);
+        } else {
+            showNotif('error', 'Gagal', res.message);
         }
     }
-	
+
+    function logout() {
+        Swal.fire({
+            title: 'Keluar Aplikasi?',
+            text: "Sesi Anda akan diakhiri.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Ya, Logout'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                location.reload();
+            }
+        })
+    }
 </script>
 </body>
 </html>
